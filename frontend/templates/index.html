@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Detector</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
+    h1 { color: #333; }
+    #inputBox { width: 100%; height: 180px; font-size: 1rem; padding: 10px; border-radius: 8px; }
+    #outputBox { margin-top: 20px; background: white; padding: 20px; border-radius: 10px; border: 1px solid #ddd; white-space: pre-wrap; }
+    .toggle { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+    .spinner { display: none; margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <h1>AI Highlighter</h1>
+
+  <textarea id="inputBox" placeholder="Type or paste your text here..."></textarea>
+  
+  <div class="toggle">
+    <label>
+      <input type="checkbox" id="autoToggle"> Auto-analyze
+    </label>
+    <button id="analyzeBtn">Analyze Now</button>
+    <span class="spinner" id="spinner">Analyzing...</span>
+  </div>
+
+  <div id="outputBox"></div>
+  <p><em>Red = AI-like • Green = Human-like</em></p>
+
+  <script>
+    const inputBox = document.getElementById("inputBox");
+    const outputBox = document.getElementById("outputBox");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const autoToggle = document.getElementById("autoToggle");
+    const spinner = document.getElementById("spinner");
+
+    let timeout = null;
+    let oldResults = {};
+
+    async function analyzeText() {
+      const text = inputBox.value.trim();
+      if (!text) return;
+      spinner.style.display = "inline";
+
+      const response = await fetch("/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, oldResults })
+      });
+
+      const data = await response.json();
+      outputBox.innerHTML = data.html;
+      oldResults = data.results;
+      spinner.style.display = "none";
+    }
+
+    analyzeBtn.addEventListener("click", analyzeText);
+
+    inputBox.addEventListener("input", () => {
+      if (autoToggle.checked) {
+        analyzeText();
+      }
+    });
+  </script>
+</body>
+</html>
