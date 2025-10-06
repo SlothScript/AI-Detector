@@ -1,3 +1,4 @@
+.DS_Store
 data/aiData.txt
 data/humanData.txt
 models/ai_detector.pkl
